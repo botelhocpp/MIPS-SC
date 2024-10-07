@@ -33,6 +33,7 @@ ARCHITECTURE behavioral OF alu IS
     CONSTANT CONST_ZERO : reg32 := (OTHERS => '0');
     
     SIGNAL Q : reg32;
+    SIGNAL set_lt : reg32;
 BEGIN
     res <= Q;
     
@@ -46,8 +47,9 @@ BEGIN
                 (reg32(SHIFT_LEFT(ureg32(op1), TO_INTEGER(ureg32(op2)))))   WHEN OP_SLLV,
                 (reg32(SHIFT_RIGHT(sreg32(op1), TO_INTEGER(ureg32(op2)))))  WHEN OP_SRAV,
                 (reg32(SHIFT_RIGHT(ureg32(op1), TO_INTEGER(ureg32(op2)))))  WHEN OP_SRLV,
-                (CONST_ONE WHEN(op1 < op2) ELSE CONST_ZERO)                 WHEN OP_SET_LT,
+                (set_lt)                                                    WHEN OP_SET_LT,
                 (OTHERS => '0')                                             WHEN OTHERS;
 	
 	zero <= '1' WHEN (Q = CONST_ZERO) ELSE '0';
+	set_lt <= CONST_ONE WHEN(op1 < op2) ELSE CONST_ZERO;
 END ARCHITECTURE;

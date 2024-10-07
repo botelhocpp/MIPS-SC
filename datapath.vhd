@@ -96,6 +96,9 @@ BEGIN
         res => alu_result
     );
     
+    data_out <= reg2_value;
+    data_address <= alu_result;
+    
     -- Immediate Control
     immediate <= RESIZE(sreg32(instruction(15 DOWNTO 0)), 32);
     long_immediate <= pc_output(31 DOWNTO 28) & instruction(25 DOWNTO 0) & "00";
