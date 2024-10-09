@@ -25,12 +25,15 @@ ENTITY control_unit IS
         reg_dst : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
         jump_immed : OUT STD_LOGIC;
         jump_reg : OUT STD_LOGIC;
-        branch_zero : OUT STD_LOGIC;
-        branch_not_zero : OUT STD_LOGIC;
+        branch_eq : OUT STD_LOGIC;
+        branch_ne : OUT STD_LOGIC;
+        branch_gtz : OUT STD_LOGIC;
+        branch_lez : OUT STD_LOGIC;
         mem_read : OUT STD_LOGIC;
         mem_to_reg : OUT STD_LOGIC;
         mem_write : OUT STD_LOGIC;
         alu_src : OUT STD_LOGIC;
+        imm_ext : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
         reg_write : OUT STD_LOGIC;
         pc_to_reg : OUT STD_LOGIC;
         
@@ -53,17 +56,31 @@ BEGIN
 
     jump_immed <= '1' WHEN (op = OP_J OR op = OP_JAL) ELSE '0';
     jump_reg <= '1' WHEN (op = OP_JR OR op = OP_JALR) ELSE '0';
-    alu_src <= '1' WHEN (op = OP_LW OR op = OP_SW OR op = OP_ADDI) ELSE '0';
-    mem_to_reg <= '1' WHEN (op = OP_LW) ELSE '0';
-    mem_read <= '1' WHEN (op = OP_LW) ELSE '0';
-    mem_write <= '1' WHEN (op = OP_SW) ELSE '0';
-    branch_zero <= '1' WHEN (op = OP_BEQ) ELSE '0';
-    branch_not_zero <= '1' WHEN (op = OP_BNE) ELSE '0';
+    mem_to_reg <= '1' WHEN (op = OP_LW OR op = OP_LB OR op = OP_LBU) ELSE '0';
+    mem_read <= '1' WHEN (op = OP_LW OR op = OP_LB OR op = OP_LBU) ELSE '0';
+    mem_write <= '1' WHEN (op = OP_SW OR op = OP_SB) ELSE '0';
     pc_to_reg <= '1' WHEN (op = OP_JAL OR op = OP_JALR) ELSE '0';
     
+    branch_eq <= '1' WHEN (op = OP_BEQ) ELSE '0';
+    branch_ne <= '1' WHEN (op = OP_BNE) ELSE '0';
+    branch_gtz <= '1' WHEN (op = OP_BGTZ) ELSE '0';
+    branch_lez <= '1' WHEN (op = OP_BLEZ) ELSE '0';
+    
+    imm_ext <=  "01" WHEN (op = OP_ANDI OR op = OP_ORI OR op = OP_XORI) ELSE
+                "10" WHEN (op = OP_LUI) ELSE
+                "00";
+    
+    alu_src <= '1' WHEN (
+	   op = OP_ADDI OR op = OP_ANDI OR op = OP_ORI OR
+       op = OP_XORI OR op = OP_LUI  OR op = OP_LB  OR
+       op = OP_LBU  OR op = OP_LW   OR op = OP_SB  OR
+       op = OP_SW   OR op = OP_SLL  OR op = OP_SRL OR
+       op = OP_SRA
+    ) ELSE '0';
+    
     reg_write <= '1' WHEN (
-        is_r_type = '1' OR op = OP_LW OR op = OP_ADDI
-        OR op = OP_JAL
+        is_r_type = '1' OR op = OP_LW OR op = OP_LUI
+        OR op = OP_ADDI OR op = OP_JAL
     ) ELSE '0';
     
     reg_dst <=  "10" WHEN (op = OP_JAL OR op = OP_JALR) ELSE

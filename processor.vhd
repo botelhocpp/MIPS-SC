@@ -35,10 +35,13 @@ ARCHITECTURE behavioral OF processor IS
     SIGNAL reg_dst : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL jump_immed : STD_LOGIC;
     SIGNAL jump_reg : STD_LOGIC;
-    SIGNAL branch_zero : STD_LOGIC;
-    SIGNAL branch_not_zero : STD_LOGIC;
+    SIGNAL branch_eq : STD_LOGIC;
+    SIGNAL branch_ne : STD_LOGIC;
+    SIGNAL branch_gtz : STD_LOGIC;
+    SIGNAL branch_lez : STD_LOGIC;
     SIGNAL mem_to_reg : STD_LOGIC;
     SIGNAL alu_src : STD_LOGIC;
+    SIGNAL imm_ext : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL reg_write : STD_LOGIC;
     SIGNAL pc_to_reg : STD_LOGIC;
     SIGNAL operation : instruction_t;
@@ -50,10 +53,13 @@ BEGIN
         reg_dst => reg_dst,
         jump_immed => jump_immed,
         jump_reg => jump_reg,
-        branch_zero => branch_zero,
-        branch_not_zero => branch_not_zero,
+        branch_eq => branch_eq,
+        branch_ne => branch_ne,
+        branch_gtz => branch_gtz,
+        branch_lez => branch_lez,
         mem_to_reg => mem_to_reg,
         alu_src => alu_src,
+        imm_ext => imm_ext,
         reg_write => reg_write,
         pc_to_reg => pc_to_reg,
         operation => operation,
@@ -69,12 +75,15 @@ BEGIN
         reg_dst => reg_dst,
         jump_immed => jump_immed,
         jump_reg => jump_reg,
-        branch_zero => branch_zero,
-        branch_not_zero => branch_not_zero,
+        branch_eq => branch_eq,
+        branch_ne => branch_ne,
+        branch_gtz => branch_gtz,
+        branch_lez => branch_lez,
         mem_read => mem_read,
         mem_to_reg => mem_to_reg,
         mem_write => mem_write,
         alu_src => alu_src,
+        imm_ext => imm_ext,
         reg_write => reg_write,
         pc_to_reg => pc_to_reg,
         operation => operation

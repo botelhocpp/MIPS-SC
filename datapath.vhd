@@ -26,10 +26,13 @@ ENTITY datapath IS
     reg_dst : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
     jump_immed : IN STD_LOGIC;
     jump_reg : IN STD_LOGIC;
-    branch_zero : IN STD_LOGIC;
-    branch_not_zero : IN STD_LOGIC;
+    branch_eq : IN STD_LOGIC;
+    branch_ne : IN STD_LOGIC;
+    branch_gtz : IN STD_LOGIC;
+    branch_lez : IN STD_LOGIC;
     mem_to_reg : IN STD_LOGIC;
     alu_src : IN STD_LOGIC;
+    imm_ext : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
     reg_write : IN STD_LOGIC;
     pc_to_reg : IN STD_LOGIC;   
     operation : IN instruction_t;
@@ -46,10 +49,12 @@ END datapath;
 ARCHITECTURE behavioral OF datapath IS
     SIGNAL branch : STD_LOGIC;
     SIGNAL alu_zero : STD_LOGIC;
+    SIGNAL alu_carry : STD_LOGIC;
     
     SIGNAL pc_input : reg32;
     SIGNAL pc_output : reg32;
-    SIGNAL immediate : sreg32;
+    SIGNAL immediate : reg32;
+    SIGNAL immediate_shifted_2 : reg32;
     SIGNAL long_immediate : reg32;
     SIGNAL reg1_value : reg32;
     SIGNAL reg2_value : reg32;
@@ -91,8 +96,10 @@ BEGIN
     PORT MAP(
         op1 => reg1_value, 
         op2 => alu_op2_mux,
+        shamt => instruction(10 DOWNTO 6),
         sel => operation,
         zero => alu_zero,
+        carry => alu_carry,
         res => alu_result
     );
     
@@ -100,18 +107,23 @@ BEGIN
     data_address <= alu_result;
     
     -- Immediate Control
-    immediate <= RESIZE(sreg32(instruction(15 DOWNTO 0)), 32);
+    WITH imm_ext SELECT
+        immediate <= reg32(RESIZE(SIGNED(instruction(15 DOWNTO 0)), 32))    WHEN "00",
+                     reg32(RESIZE(UNSIGNED(instruction(15 DOWNTO 0)), 32))  WHEN "01",
+                     instruction(15 DOWNTO 0) & x"0000"                     WHEN OTHERS;   
+    immediate_shifted_2 <= immediate(29 DOWNTO 0) & "00";
     long_immediate <= pc_output(31 DOWNTO 28) & instruction(25 DOWNTO 0) & "00";
     
     -- Branch Control
     branch <= '1' WHEN (
-        (alu_zero = '1' AND branch_zero = '1') OR
-        (alu_zero = '0' AND branch_not_zero = '1')
+        (alu_zero = '1' AND branch_eq = '1') OR
+        (alu_zero = '0' AND branch_ne = '1') OR
+        ((alu_zero = '0' AND alu_carry = '0') AND branch_gtz = '1') OR
+        ((alu_zero = '1' OR alu_carry = '1') AND branch_lez = '1')
     ) ELSE '0';
     
-    
     -- Data Muxes
-    alu_op2_mux <= reg32(immediate) WHEN (alu_src = '1') ELSE reg2_value;
+    alu_op2_mux <= immediate WHEN (alu_src = '1') ELSE reg2_value;
     mem_to_reg_mux <= data_in WHEN (mem_to_reg = '1') ELSE alu_result;
     write_data_mux <= pc_plus_4 WHEN (pc_to_reg = '1') ELSE mem_to_reg_mux;
     
@@ -123,7 +135,7 @@ BEGIN
     -- PC Control
     instruction_address <= pc_output;
     pc_plus_4 <= reg32(ureg32(pc_output) + 4);
-    pc_adder_immed <= reg32(sreg32(pc_plus_4) + SHIFT_LEFT(immediate, 2));
+    pc_adder_immed <= reg32(sreg32(pc_plus_4) + sreg32(immediate_shifted_2));
     
     -- PC Control (Mux)
     pc_branch_immed_mux <= pc_adder_immed WHEN (branch = '1') ELSE pc_plus_4;
