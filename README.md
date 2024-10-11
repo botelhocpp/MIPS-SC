@@ -2,11 +2,18 @@
 ## A complete implementation of the single-cycle model of the MIPS processor, made in VHDL for teaching purposes.
 
 <p align="center">
+ <a href="#processor">Processor</a> •
  <a href="#assembler">Assembler</a> •
  <a href="#tools">Tools</a> • 
  <a href="#instructions">Instructions</a> • 
  <a href="#developer">Developer</a>
 </p>
+
+# Processor
+
+The processor diagram implemented in this project is shown below:
+
+![image](https://github.com/botelhocpp/MIPS-SC/blob/main/diagram.png)
 
 # Assembler
 
