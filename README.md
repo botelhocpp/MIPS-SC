@@ -44,6 +44,7 @@ This CPU supports all major instructions of the MIPS architecture:
 |   blez      |   I  | 000110  |        -         |
 |    bne      |   I  | 000101  |        -         |
 |    addi     |   I  | 001000  |        -         |
+|    slti     |   I  | 001010  |        -         |
 |    andi     |   I  | 001100  |        -         |
 |     ori     |   I  | 001101  |        -         |
 |    xori     |   I  | 001110  |        -         |
