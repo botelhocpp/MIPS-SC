@@ -19,7 +19,7 @@ LIBRARY STD;
 USE STD.TEXTIO.ALL;
 
 PACKAGE pkg_mips IS
-    CONSTANT CONST_ADDR_NUM : INTEGER := 2048;
+    CONSTANT CONST_ADDR_NUM : INTEGER := 4096;
     
     SUBTYPE reg32 IS STD_LOGIC_VECTOR(31 DOWNTO 0);
     SUBTYPE ureg32 IS UNSIGNED(31 DOWNTO 0);
@@ -28,7 +28,7 @@ PACKAGE pkg_mips IS
     SUBTYPE byte IS STD_LOGIC_VECTOR(7 DOWNTO 0);
     SUBTYPE nibble IS STD_LOGIC_VECTOR(3 DOWNTO 0);
     
-    TYPE mem_array_t IS ARRAY (0 TO CONST_ADDR_NUM - 1) OF reg32;
+    TYPE mem_array_t IS ARRAY (0 TO CONST_ADDR_NUM - 1) OF byte;
     
     TYPE instruction_t IS (
         OP_SLL,
@@ -47,6 +47,7 @@ PACKAGE pkg_mips IS
         OP_NOR,
         OP_SLT,
         OP_ADDI,
+        OP_SLTI,
         OP_ANDI,
         OP_ORI,
         OP_XORI,
@@ -98,8 +99,9 @@ PACKAGE BODY pkg_mips IS
         ELSE
             WITH opcode SELECT
                 inst := OP_ADDI     WHEN "001000",
+                        OP_SLTI     WHEN "001010",
                         OP_ANDI     WHEN "001100",
-                        OP_ORI     WHEN "001101",
+                        OP_ORI      WHEN "001101",
                         OP_XORI     WHEN "001110",
                         OP_LUI      WHEN "001111",
                         OP_LB       WHEN "100000",
@@ -159,11 +161,11 @@ PACKAGE BODY pkg_mips IS
             READLINE(text_file, text_line);
             READ(text_line, hex_string);
             
-            FOR j IN 1 TO 8 LOOP
-			     contents(i)((8 - j + 1)*4 - 1 DOWNTO (8 - j)*4) := HexToBin(hex_string(j));
+            FOR j IN 0 TO 3 LOOP
+                 contents(i + 3 - j) := HexToBin(hex_string(2*j + 1)) & HexToBin(hex_string(2*j + 2));
             END LOOP;
             
-            i := i + 1;
+            i := i + 4;
           END LOOP;
           
           FOR j IN i TO CONST_ADDR_NUM - 1 LOOP

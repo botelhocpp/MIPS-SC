@@ -30,7 +30,7 @@ ENTITY datapath IS
     branch_ne : IN STD_LOGIC;
     branch_gtz : IN STD_LOGIC;
     branch_lez : IN STD_LOGIC;
-    mem_to_reg : IN STD_LOGIC;
+    mem_to_reg : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
     alu_src : IN STD_LOGIC;
     imm_ext : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
     reg_write : IN STD_LOGIC;
@@ -124,13 +124,18 @@ BEGIN
     
     -- Data Muxes
     alu_op2_mux <= immediate WHEN (alu_src = '1') ELSE reg2_value;
-    mem_to_reg_mux <= data_in WHEN (mem_to_reg = '1') ELSE alu_result;
     write_data_mux <= pc_plus_4 WHEN (pc_to_reg = '1') ELSE mem_to_reg_mux;
+    
+    WITH mem_to_reg SELECT
+        mem_to_reg_mux <= alu_result                                    WHEN "00",
+                          data_in                                       WHEN "01",
+                          x"000000" & data_in(7 DOWNTO 0)               WHEN "10",
+                          reg32(RESIZE(sreg32(data_in(7 DOWNTO 0)), 32))WHEN OTHERS;
     
     WITH reg_dst SELECT
         write_reg_mux <= instruction(20 DOWNTO 16) WHEN "00",
                          instruction(15 DOWNTO 11) WHEN "01",
-                         "11111" WHEN OTHERS;
+                         "11111"                   WHEN OTHERS;
     
     -- PC Control
     instruction_address <= pc_output;

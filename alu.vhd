@@ -36,8 +36,12 @@ ARCHITECTURE behavioral OF alu IS
     
     SIGNAL Q : reg32;
     SIGNAL set_lt : reg32;
+    SIGNAL shift_amount : ureg32;
 BEGIN
     res <= Q;
+    shift_amount <= ureg32(RESIZE(ureg32(shamt), 32))
+                    WHEN(sel = OP_SLL OR sel = OP_SRL OR sel = OP_SRA) ELSE 
+                    ureg32(op1);
     
     WITH sel SELECT
         Q <=    (reg32(sreg32(op1) + sreg32(op2)))                          WHEN OP_ADD | OP_ADDI | OP_LW | OP_LB | OP_LBU | OP_SW | OP_SB,
@@ -46,13 +50,10 @@ BEGIN
                 (op1 OR op2)                                                WHEN OP_OR | OP_ORI,
                 (op1 XOR op2)                                               WHEN OP_XOR | OP_XORI,
                 (op1 NOR op2)                                               WHEN OP_NOR,
-                (reg32(SHIFT_LEFT(ureg32(op1), TO_INTEGER(ureg32(op2)))))   WHEN OP_SLLV,
-                (reg32(SHIFT_RIGHT(sreg32(op1), TO_INTEGER(ureg32(op2)))))  WHEN OP_SRAV,
-                (reg32(SHIFT_RIGHT(ureg32(op1), TO_INTEGER(ureg32(op2)))))  WHEN OP_SRLV,
-                (reg32(SHIFT_LEFT(ureg32(op2), TO_INTEGER(ureg32(shamt))))) WHEN OP_SLL,
-                (reg32(SHIFT_RIGHT(sreg32(op2), TO_INTEGER(ureg32(shamt)))))WHEN OP_SRA,
-                (reg32(SHIFT_RIGHT(ureg32(op2), TO_INTEGER(ureg32(shamt)))))WHEN OP_SRL,
-                (set_lt)                                                    WHEN OP_SLT,
+                (reg32(SHIFT_LEFT(ureg32(op2), TO_INTEGER(shift_amount))))  WHEN OP_SLLV | OP_SLL,
+                (reg32(SHIFT_RIGHT(sreg32(op2), TO_INTEGER(shift_amount)))) WHEN OP_SRAV | OP_SRA,
+                (reg32(SHIFT_RIGHT(ureg32(op2), TO_INTEGER(shift_amount)))) WHEN OP_SRLV | OP_SRL,
+                (set_lt)                                                    WHEN OP_SLT | OP_SLTI,
                 (op2)                                                       WHEN OTHERS;
 	
 	zero <= '1' WHEN (Q = CONST_ZERO) ELSE '0';

@@ -28,6 +28,7 @@ ENTITY memory IS
         address : IN reg32;
         we : IN STD_LOGIC;
         oe : IN STD_LOGIC;
+        bw : IN STD_LOGIC;
         clk : IN STD_LOGIC;
         data_out : OUT reg32
     );
@@ -40,15 +41,23 @@ ARCHITECTURE behavioral OF memory IS
     SIGNAL address_integer : INTEGER;
 BEGIN 
     memory_address <= ureg32(address) - ureg32(START_ADDR);
-    address_integer <= TO_INTEGER( memory_address(31 DOWNTO 2) );
+    address_integer <= TO_INTEGER( memory_address );
     
     PROCESS(clk, address_integer, oe, we)
     BEGIN
         IF(address_integer >= 0 AND address_integer < CONST_ADDR_NUM) THEN
-            IF(oe = '1') THEN
-                data_out <= contents(address_integer);
+            IF(oe = '1') THEN        
+                data_out(7 DOWNTO 0) <= contents(address_integer);            
+                data_out(15 DOWNTO 8) <= contents(address_integer + 1);
+                data_out(23 DOWNTO 16) <= contents(address_integer + 2);
+                data_out(31 DOWNTO 24) <= contents(address_integer + 3);
             ELSIF(RISING_EDGE(clk) AND we = '1') THEN
-                contents(address_integer) <= data_in;
+                IF(bw = '0') THEN
+                    contents(address_integer + 1) <= data_in(15 DOWNTO 8);
+                    contents(address_integer + 2) <= data_in(23 DOWNTO 16);
+                    contents(address_integer + 3) <= data_in(31 DOWNTO 24);
+                END IF;
+                contents(address_integer) <= data_in(7 DOWNTO 0);
             END IF;
         END IF;
     END PROCESS;

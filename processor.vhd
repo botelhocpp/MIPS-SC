@@ -25,6 +25,7 @@ ENTITY processor IS
     rst : IN STD_LOGIC;
     mem_read : OUT STD_LOGIC;
     mem_write : OUT STD_LOGIC;
+    mem_bw : OUT STD_LOGIC;
     instruction_address : OUT reg32;
     data_address : OUT reg32;
     data_out : OUT reg32
@@ -39,7 +40,7 @@ ARCHITECTURE behavioral OF processor IS
     SIGNAL branch_ne : STD_LOGIC;
     SIGNAL branch_gtz : STD_LOGIC;
     SIGNAL branch_lez : STD_LOGIC;
-    SIGNAL mem_to_reg : STD_LOGIC;
+    SIGNAL mem_to_reg : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL alu_src : STD_LOGIC;
     SIGNAL imm_ext : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL reg_write : STD_LOGIC;
@@ -82,6 +83,7 @@ BEGIN
         mem_read => mem_read,
         mem_to_reg => mem_to_reg,
         mem_write => mem_write,
+        mem_bw => mem_bw,
         alu_src => alu_src,
         imm_ext => imm_ext,
         reg_write => reg_write,

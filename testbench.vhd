@@ -31,6 +31,7 @@ ARCHITECTURE behavioral OF testbench IS
     SIGNAL instruction : reg32;
     SIGNAL mem_write : STD_LOGIC;
     SIGNAL mem_read : STD_LOGIC;
+    SIGNAL mem_bw : STD_LOGIC;
     
     -- Common Signals
     SIGNAL clk : STD_LOGIC := '0';
@@ -45,6 +46,7 @@ BEGIN
         rst => rst,
         mem_read => mem_read,
         mem_write => mem_write,
+        mem_bw => mem_bw,
         instruction_address => instruction_address,
         data_address => data_address,
         data_out => cpu_data_out
@@ -59,6 +61,7 @@ BEGIN
         address => data_address,
         we => mem_write,
         oe => mem_read,
+        bw => mem_bw,
         clk => clk,
         data_out => cpu_data_in
     );
@@ -72,6 +75,7 @@ BEGIN
         address => instruction_address,
         we => '0',
         oe => '1',
+        bw => '0',
         clk => clk,
         data_out => instruction
     );
