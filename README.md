@@ -13,7 +13,7 @@
 
 The processor diagram implemented in this project is shown below:
 
-![image](https://github.com/botelhocpp/MIPS-SC/blob/main/diagram.png)
+![image](https://github.com/botelhocpp/MIPS-SC/blob/main/cpu_diagram.png)
 
 # Assembler
 
