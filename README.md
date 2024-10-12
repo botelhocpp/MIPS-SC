@@ -13,8 +13,6 @@
 
 The processor diagram implemented in this project is shown below:
 
-![image](https://github.com/botelhocpp/MIPS-SC/blob/main/diagram.png)
-
 # Assembler
 
 Assembly code for this CPU can be converted to binary using the [SiMAS](https://github.com/botelhocpp/SiMAS/tree/main) assembler. The binary code of the instructions have to be put in the "code.txt" file and the variables used in the "data.txt" file.
